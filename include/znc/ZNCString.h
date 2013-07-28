@@ -22,6 +22,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <sstream>
 #include <sys/types.h>
 
 #define _SQL(s) CString("'" + CString(s).Escape_n(CString::ESQL) + "'")
@@ -93,6 +94,8 @@ public:
 	CString(const char* c, size_t l) : std::string(c, l) {}
 	CString(const std::string& s) : std::string(s) {}
 	CString(size_t n, char c) : std::string(n, c) {}
+	CString(const CString& s, int i, size_t& n) : std::string(s, i, n) {}
+	CString(const CString& s, size_t n) : std::string(s, n) {}
 	~CString() {}
 
 	/**
@@ -294,6 +297,21 @@ public:
 	 * @return The string with named parameters replaced.
 	 */
 	static CString NamedFormat(const CString& sFormat, const MCString& msValues);
+
+  template <class Head, class ... Tail>
+  static CString Translate(const CString& sFormat, const Head& head, const Tail& ... tail)
+  {
+    std::stringstream os;
+    std::size_t iFirstPlaceholderPos = sFormat.find("{");
+    std::size_t iFirstPlaceholderEndPos = sFormat.find("}");
+
+    CString sFront(sFormat, 0, iFirstPlaceholderPos);
+    CString sBack(sFormat, iFirstPlaceholderEndPos + 1);
+
+    os<< sFront << head << Translate(sBack, tail ... );
+
+    return os.str();
+  }
 
 	/** Produces a random string.
 	 * @param uLength The length of the resulting string.
