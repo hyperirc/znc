@@ -125,6 +125,7 @@ public:
 	bool DelCTCPReply(const CString& sCTCP);
 	bool SetBufferCount(unsigned int u, bool bForce = false);
 	void SetAutoClearChanBuffer(bool b);
+	void SetLang(const CString& s);
 
 	void SetBeingDeleted(bool b) { m_bBeingDeleted = b; }
 	void SetTimestampFormat(const CString& s) { m_sTimestampFormat = s; }
@@ -155,6 +156,7 @@ public:
 	const CString& GetTimestampFormat() const;
 	bool GetTimestampAppend() const;
 	bool GetTimestampPrepend() const;
+	const CString& GetLang() const;
 
 	const CString& GetUserPath() const;
 
@@ -192,6 +194,7 @@ protected:
 	CString               m_sPassSalt;
 	CString               m_sStatusPrefix;
 	CString               m_sDefaultChanModes;
+	CString				  m_sLang;
 
 	CString               m_sQuitMsg;
 	MCString              m_mssCTCPReplies;

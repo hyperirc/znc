@@ -58,6 +58,7 @@ class CAdminMod : public CModule {
 			{"Ident",               str},
 			{"RealName",            str},
 			{"BindHost",            str},
+			{"Language",            str},
 			{"MultiClients",        boolean},
 			{"DenyLoadMod",         boolean},
 			{"DenySetBindHost",     boolean},
@@ -170,6 +171,8 @@ class CAdminMod : public CModule {
 			PutModule("RealName = " + pUser->GetRealName());
 		else if (sVar == "bindhost")
 			PutModule("BindHost = " + pUser->GetBindHost());
+		else if	(sVar == "language")
+            PutModule("Language = "	+ pUser->GetLang());
 		else if (sVar == "multiclients")
 			PutModule("MultiClients = " + CString(pUser->MultiClients()));
 		else if (sVar == "denyloadmod")
@@ -246,6 +249,10 @@ class CAdminMod : public CModule {
 				PutModule("Access denied!");
 			}
 		}
+		else if (sVar == "language") {
+            pUser->SetLang(sValue);
+            PutModule("Language = "	+ sValue);
+        }
 		else if (sVar == "multiclients") {
 			bool b = sValue.ToBool();
 			pUser->SetMultiClients(b);
@@ -585,6 +592,7 @@ class CAdminMod : public CModule {
 		Table.AddColumn("AltNick");
 		Table.AddColumn("Ident");
 		Table.AddColumn("BindHost");
+		Table.AddColumn("Language");
 
 		for (map<CString, CUser*>::const_iterator it = msUsers.begin(); it != msUsers.end(); ++it) {
 			Table.AddRow();
@@ -598,6 +606,7 @@ class CAdminMod : public CModule {
 			Table.SetCell("AltNick", it->second->GetAltNick());
 			Table.SetCell("Ident", it->second->GetIdent());
 			Table.SetCell("BindHost", it->second->GetBindHost());
+			Table.SetCell("Language", it->second->GetLang());
 		}
 
 		PutModule(Table);

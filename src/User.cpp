@@ -148,6 +148,7 @@ bool CUser::ParseConfig(CConfig* pConfig, CString& sError) {
 		{ "dccvhost", &CUser::SetDCCBindHost },
 		{ "timestampformat", &CUser::SetTimestampFormat },
 		{ "skin", &CUser::SetSkinName },
+		{ "lang", &CUser::SetLang },
 	};
 	size_t numStringOptions = sizeof(StringOptions) / sizeof(StringOptions[0]);
 	TOption<unsigned int> UIntOptions[] = {
@@ -527,6 +528,7 @@ CString& CUser::ExpandString(const CString& sStr, CString& sRet) const {
 	sRet.Replace("%version%", CZNC::GetVersion());
 	sRet.Replace("%time%", sTime);
 	sRet.Replace("%uptime%", CZNC::Get().GetUptime());
+	sRet.Replace("%lang%", GetLang());
 	// The following lines do not exist. You must be on DrUgS!
 	sRet.Replace("%znc%", "All your IRC are belong to ZNC");
 	// Chosen by fair zocchihedron dice roll by SilverLeo
@@ -676,6 +678,7 @@ bool CUser::Clone(const CUser& User, CString& sErrorRet, bool bCloneNetworks) {
 	SetJoinTries(User.JoinTries());
 	SetMaxNetworks(User.MaxNetworks());
 	SetMaxJoins(User.MaxJoins());
+	SetLang(User.GetLang());
 
 	// Allowed Hosts
 	m_ssAllowedHosts.clear();
@@ -872,6 +875,7 @@ CConfig CUser::ToConfig() {
 	config.AddKeyValuePair("JoinTries", CString(m_uMaxJoinTries));
 	config.AddKeyValuePair("MaxNetworks", CString(m_uMaxNetworks));
 	config.AddKeyValuePair("MaxJoins", CString(m_uMaxJoins));
+	config.AddKeyValuePair("Language", GetLang());
 
 	// Allow Hosts
 	if (!m_ssAllowedHosts.empty()) {
@@ -1070,6 +1074,7 @@ void CUser::SetIdent(const CString& s) { m_sIdent = s; }
 void CUser::SetRealName(const CString& s) { m_sRealName = s; }
 void CUser::SetBindHost(const CString& s) { m_sBindHost = s; }
 void CUser::SetDCCBindHost(const CString& s) { m_sDCCBindHost = s; }
+void CUser::SetLang(const CString& s) { m_sLang = s; }
 void CUser::SetPass(const CString& s, eHashType eHash, const CString& sSalt) {
 	m_sPass = s;
 	m_eHashType = eHash;
@@ -1142,6 +1147,7 @@ const CString& CUser::GetIdent(bool bAllowDefault) const { return (bAllowDefault
 const CString& CUser::GetRealName() const { return m_sRealName.empty() ? m_sUserName : m_sRealName; }
 const CString& CUser::GetBindHost() const { return m_sBindHost; }
 const CString& CUser::GetDCCBindHost() const { return m_sDCCBindHost; }
+const CString& CUser::GetLang() const { return m_sLang.empty() ? "en_US" : m_sLang; }
 const CString& CUser::GetPass() const { return m_sPass; }
 CUser::eHashType CUser::GetPassHashType() const { return m_eHashType; }
 const CString& CUser::GetPassSalt() const { return m_sPassSalt; }

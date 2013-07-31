@@ -740,6 +740,24 @@ CString CString::NamedFormat(const CString& sFormat, const MCString& msValues) {
 	return sRet;
 }
 
+CString CString::Translate(const CString& sLang, const CString& sFormat, const MCString& msValues) {
+	setenv ("LANGUAGE", sLang.c_str(), 1);
+	{
+		extern int _nl_msg_cat_cntr;
+		++_nl_msg_cat_cntr;
+	}
+	return NamedFormat(gettext(sFormat.c_str()), msValues);
+}
+
+CString CString::Translate(const CString& sLang, const CString& sText) {
+	setenv ("LANGUAGE", sLang.c_str(), 1);
+	{
+		extern int _nl_msg_cat_cntr;
+		++_nl_msg_cat_cntr;
+	}
+	return gettext(sText.c_str());
+}
+
 CString CString::RandomString(unsigned int uLength) {
 	const char chars[] = "abcdefghijklmnopqrstuvwxyz"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
