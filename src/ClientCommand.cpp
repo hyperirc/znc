@@ -20,7 +20,6 @@
 #include <znc/IRCSock.h>
 #include <znc/Server.h>
 #include <znc/User.h>
-#include <znc/ZNCString.h>
 
 using std::vector;
 using std::set;
@@ -35,6 +34,10 @@ void CClient::UserCommand(CString& sLine) {
 		return;
 	}
 
+setlocale (LC_ALL, "");
+textdomain ("ClientCommand");
+bindtextdomain ("ClientCommand", "/home/znc1/locale");	
+	
 	bool bReturn = false;
 	NETWORKMODULECALL(OnStatusCommand(sLine), m_pUser, m_pNetwork, this, &bReturn);
 	if (bReturn) return;
@@ -44,7 +47,7 @@ void CClient::UserCommand(CString& sLine) {
 	if (sCommand.Equals("HELP")) {
 		HelpUser();
 	} else if (sCommand.Equals("TRANS")) {
-		std::cout << CString::Translate(m_pUser->GetLang(), "hello, world!") << "\n";
+		std::cout << m_pUser->Translate("hello, world!") << "\n";
 	} else if (sCommand.Equals("LISTNICKS")) {
 		if (!m_pNetwork) {
 			PutStatus("You must be connected with a network to use this command");

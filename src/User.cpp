@@ -80,6 +80,7 @@ CUser::CUser(const CString& sUserName)
 	m_sUserPath = CZNC::Get().GetUserPath() + "/" + m_sUserName;
 
 	m_sTimezone = "";
+	m_sLang = "en_US";
 	m_sNick = m_sCleanUserName;
 	m_sIdent = m_sCleanUserName;
 	m_sRealName = sUserName;
@@ -148,7 +149,7 @@ bool CUser::ParseConfig(CConfig* pConfig, CString& sError) {
 		{ "dccvhost", &CUser::SetDCCBindHost },
 		{ "timestampformat", &CUser::SetTimestampFormat },
 		{ "skin", &CUser::SetSkinName },
-		{ "lang", &CUser::SetLang },
+		{ "language", &CUser::SetLang },
 	};
 	size_t numStringOptions = sizeof(StringOptions) / sizeof(StringOptions[0]);
 	TOption<unsigned int> UIntOptions[] = {
@@ -528,7 +529,7 @@ CString& CUser::ExpandString(const CString& sStr, CString& sRet) const {
 	sRet.Replace("%version%", CZNC::GetVersion());
 	sRet.Replace("%time%", sTime);
 	sRet.Replace("%uptime%", CZNC::Get().GetUptime());
-	sRet.Replace("%lang%", GetLang());
+	sRet.Replace("%language%", GetLang());
 	// The following lines do not exist. You must be on DrUgS!
 	sRet.Replace("%znc%", "All your IRC are belong to ZNC");
 	// Chosen by fair zocchihedron dice roll by SilverLeo
@@ -1067,6 +1068,9 @@ bool CUser::IsUserAttached() const {
 	return false;
 }
 
+CString CUser::Translate(const CString& sText) { return CString::Translate(m_sLang, sText); }
+CString CUser::Translate(const CString& sText, const MCString& msValues) { return CString::Translate(m_sLang, sText, msValues); }
+
 // Setters
 void CUser::SetNick(const CString& s) { m_sNick = s; }
 void CUser::SetAltNick(const CString& s) { m_sAltNick = s; }
@@ -1074,7 +1078,13 @@ void CUser::SetIdent(const CString& s) { m_sIdent = s; }
 void CUser::SetRealName(const CString& s) { m_sRealName = s; }
 void CUser::SetBindHost(const CString& s) { m_sBindHost = s; }
 void CUser::SetDCCBindHost(const CString& s) { m_sDCCBindHost = s; }
-void CUser::SetLang(const CString& s) { m_sLang = s; }
+void CUser::SetLang(const CString& s) {
+        MCString::const_iterator itr;
+        for(itr = msLangs.begin(); itr != msLangs.end(); ++itr){
+                if ((*itr).second == s)
+					m_sLang = (*itr).first;
+        }
+}
 void CUser::SetPass(const CString& s, eHashType eHash, const CString& sSalt) {
 	m_sPass = s;
 	m_eHashType = eHash;
@@ -1147,7 +1157,9 @@ const CString& CUser::GetIdent(bool bAllowDefault) const { return (bAllowDefault
 const CString& CUser::GetRealName() const { return m_sRealName.empty() ? m_sUserName : m_sRealName; }
 const CString& CUser::GetBindHost() const { return m_sBindHost; }
 const CString& CUser::GetDCCBindHost() const { return m_sDCCBindHost; }
-const CString& CUser::GetLang() const { return m_sLang.empty() ? "en_US" : m_sLang; }
+const CString& CUser::GetLang() const { return msLangs[m_sLang]; }
+CString CUser::Translate(const CString& sText) { return CString::Translate(m_sLang, sText); }
+CString CUser::Translate(const CString& sText, const MCString& msValues) { return CString::Translate(m_sLang, sText, msValues); }
 const CString& CUser::GetPass() const { return m_sPass; }
 CUser::eHashType CUser::GetPassHashType() const { return m_eHashType; }
 const CString& CUser::GetPassSalt() const { return m_sPassSalt; }
@@ -1167,3 +1179,8 @@ bool CUser::AutoClearChanBuffer() const { return m_bAutoClearChanBuffer; }
 CString CUser::GetSkinName() const { return m_sSkinName; }
 const CString& CUser::GetUserPath() const { if (!CFile::Exists(m_sUserPath)) { CDir::MakeDir(m_sUserPath); } return m_sUserPath; }
 // !Getters
+MCString CUser::msLangs;
+void InitMap() {
+        CUser::msLangs["English"] = "en_US";
+        CUser::msLangs["Deutsch"] = "de_DE";
+}

@@ -592,7 +592,6 @@ class CAdminMod : public CModule {
 		Table.AddColumn("AltNick");
 		Table.AddColumn("Ident");
 		Table.AddColumn("BindHost");
-		Table.AddColumn("Language");
 
 		for (map<CString, CUser*>::const_iterator it = msUsers.begin(); it != msUsers.end(); ++it) {
 			Table.AddRow();
@@ -606,7 +605,6 @@ class CAdminMod : public CModule {
 			Table.SetCell("AltNick", it->second->GetAltNick());
 			Table.SetCell("Ident", it->second->GetIdent());
 			Table.SetCell("BindHost", it->second->GetBindHost());
-			Table.SetCell("Language", it->second->GetLang());
 		}
 
 		PutModule(Table);

@@ -105,6 +105,9 @@ public:
 
 	void AddBytesRead(unsigned long long u) { m_uBytesRead += u; }
 	void AddBytesWritten(unsigned long long u) { m_uBytesWritten += u; }
+	
+	CString Translate(const CString& sText);
+	CString Translate(const CString& sFormat, const MCString& msValues);
 
 	// Setters
 	void SetNick(const CString& s);
@@ -157,6 +160,8 @@ public:
 	bool GetTimestampAppend() const;
 	bool GetTimestampPrepend() const;
 	const CString& GetLang() const;
+	CString Translate(const CString& sText);
+	CString Translate(const CString& sFormat, const MCString& msValues);
 
 	const CString& GetUserPath() const;
 
@@ -180,6 +185,9 @@ public:
 	CString GetSkinName() const;
 	unsigned int MaxNetworks() const { return m_uMaxNetworks; }
 	// !Getters
+	static MCString msLangs;
+	static void InitMap();
+
 
 protected:
 	const CString         m_sUserName;
