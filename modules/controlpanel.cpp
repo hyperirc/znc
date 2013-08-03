@@ -250,8 +250,16 @@ class CAdminMod : public CModule {
 			}
 		}
 		else if (sVar == "language") {
-            pUser->SetLang(sValue);
-            PutModule("Language = "	+ sValue);
+			if(pUser->SetLang(sValue)) {
+				PutModule("Language = " + sValue);
+			} else {
+				MCString::const_iterator itr;
+				CString avail_langs;
+				for(itr = CUser::msLangs.begin(); itr != CUser::msLangs.end(); ++itr)
+					avail_langs = avail_langs + "  " + (*itr).second;
+				PutModule("Language [" + sValue + "] is not available.");
+				PutModule("Available languages are:" + avail_langs);
+			}
         }
 		else if (sVar == "multiclients") {
 			bool b = sValue.ToBool();

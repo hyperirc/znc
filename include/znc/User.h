@@ -109,6 +109,8 @@ public:
 	CString Translate(const CString& sText);
 	CString Translate(const CString& sFormat, const MCString& msValues);
 
+	static MCString msLangs;
+
 	// Setters
 	void SetNick(const CString& s);
 	void SetAltNick(const CString& s);
@@ -128,7 +130,7 @@ public:
 	bool DelCTCPReply(const CString& sCTCP);
 	bool SetBufferCount(unsigned int u, bool bForce = false);
 	void SetAutoClearChanBuffer(bool b);
-	void SetLang(const CString& s);
+	bool SetLang(const CString& s);
 
 	void SetBeingDeleted(bool b) { m_bBeingDeleted = b; }
 	void SetTimestampFormat(const CString& s) { m_sTimestampFormat = s; }
@@ -185,9 +187,6 @@ public:
 	CString GetSkinName() const;
 	unsigned int MaxNetworks() const { return m_uMaxNetworks; }
 	// !Getters
-	static MCString msLangs;
-	static void InitMap();
-
 
 protected:
 	const CString         m_sUserName;
@@ -240,6 +239,13 @@ protected:
 
 private:
 	void SetKeepBuffer(bool b) { SetAutoClearChanBuffer(!b); } // XXX compatibility crap, added in 0.207
+
+	static MCString init_map() {
+		MCString SomeMap;
+		SomeMap["en_US"] = "English";
+		SomeMap["de_DE"] = "Deutsch";
+		return SomeMap;
+	}
 };
 
 #endif // !_USER_H

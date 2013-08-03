@@ -218,7 +218,6 @@ public:
 		sArg = WebSock.GetParam("altnick"); if (!sArg.empty()) { pNewUser->SetAltNick(sArg); }
 		sArg = WebSock.GetParam("statusprefix"); if (!sArg.empty()) { pNewUser->SetStatusPrefix(sArg); }
 		sArg = WebSock.GetParam("ident"); if (!sArg.empty()) { pNewUser->SetIdent(sArg); }
-		sArg = WebSock.GetParam("skin"); if (!sArg.empty()) { pNewUser->SetSkinName(sArg); }
 		sArg = WebSock.GetParam("realname"); if (!sArg.empty()) { pNewUser->SetRealName(sArg); }
 		sArg = WebSock.GetParam("quitmsg"); if (!sArg.empty()) { pNewUser->SetQuitMsg(sArg); }
 		sArg = WebSock.GetParam("chanmodes"); if (!sArg.empty()) { pNewUser->SetDefaultChanModes(sArg); }
@@ -271,6 +270,7 @@ public:
 		}
 
 		pNewUser->SetSkinName(WebSock.GetParam("skin"));
+		pNewUser->SetLang(WebSock.GetParam("language"));
 		pNewUser->SetAutoClearChanBuffer(WebSock.GetParam("autoclearchanbuffer").ToBool());
 		pNewUser->SetMultiClients(WebSock.GetParam("multiclients").ToBool());
 		pNewUser->SetTimestampAppend(WebSock.GetParam("appendtimestamp").ToBool());
@@ -1178,6 +1178,14 @@ public:
 				if (pUser && SubDir == pUser->GetSkinName()) {
 					l["Checked"] = "true";
 				}
+			}
+			
+			MCString::const_iterator itr;
+			for(itr = CUser::msLangs.begin(); itr != CUser::msLangs.end(); ++itr) {
+				CTemplate& l = Tmpl.AddRow("LangLoop");
+				l["Name"] = (*itr).second;
+				if (pUser && (*itr).second == pUser->GetLang())
+					l["Checked"] = "true";
 			}
 
 			set<CModInfo> ssUserMods;

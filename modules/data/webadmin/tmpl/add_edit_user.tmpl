@@ -293,6 +293,18 @@
 						<? ENDIF ?>
 
 				</div>
+				<div class="subsection">
+					<div class="inputlabel">Language:</div>
+						<? IF LangLoop ROWS > 1 ?>
+						<select name="language">
+							<? LOOP LangLoop ?>
+							<option value="<? VAR Name ?>"<? IF Checked ?> selected="selected"<? ENDIF ?>><? VAR Name ?></option>
+							<? ENDLOOP ?>
+						</select>
+						<? ELSE ?>
+						No languages found
+						<? ENDIF ?>
+				</div>
 				<div style="clear: both;"></div>
 			</div>
 		</div>

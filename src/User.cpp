@@ -149,7 +149,6 @@ bool CUser::ParseConfig(CConfig* pConfig, CString& sError) {
 		{ "dccvhost", &CUser::SetDCCBindHost },
 		{ "timestampformat", &CUser::SetTimestampFormat },
 		{ "skin", &CUser::SetSkinName },
-		{ "language", &CUser::SetLang },
 	};
 	size_t numStringOptions = sizeof(StringOptions) / sizeof(StringOptions[0]);
 	TOption<unsigned int> UIntOptions[] = {
@@ -236,6 +235,13 @@ bool CUser::ParseConfig(CConfig* pConfig, CString& sError) {
 	if (pConfig->FindStringEntry("statusprefix", sValue)) {
 		if (!SetStatusPrefix(sValue)) {
 			sError = "Invalid StatusPrefix [" + sValue + "] Must be 1-5 chars, no spaces.";
+			CUtils::PrintError(sError);
+			return false;
+		}
+	}
+	if (pConfig->FindStringEntry("language", sValue)) {
+		if (!SetLang(msLangs[sValue])) {
+			sError = "Invalid Language [" + sValue + "] In the config file.";
 			CUtils::PrintError(sError);
 			return false;
 		}
@@ -1071,6 +1077,8 @@ bool CUser::IsUserAttached() const {
 CString CUser::Translate(const CString& sText) { return CString::Translate(m_sLang, sText); }
 CString CUser::Translate(const CString& sText, const MCString& msValues) { return CString::Translate(m_sLang, sText, msValues); }
 
+MCString CUser::msLangs = init_map();
+
 // Setters
 void CUser::SetNick(const CString& s) { m_sNick = s; }
 void CUser::SetAltNick(const CString& s) { m_sAltNick = s; }
@@ -1078,13 +1086,6 @@ void CUser::SetIdent(const CString& s) { m_sIdent = s; }
 void CUser::SetRealName(const CString& s) { m_sRealName = s; }
 void CUser::SetBindHost(const CString& s) { m_sBindHost = s; }
 void CUser::SetDCCBindHost(const CString& s) { m_sDCCBindHost = s; }
-void CUser::SetLang(const CString& s) {
-        MCString::const_iterator itr;
-        for(itr = msLangs.begin(); itr != msLangs.end(); ++itr){
-                if ((*itr).second == s)
-					m_sLang = (*itr).first;
-        }
-}
 void CUser::SetPass(const CString& s, eHashType eHash, const CString& sSalt) {
 	m_sPass = s;
 	m_eHashType = eHash;
@@ -1128,6 +1129,17 @@ bool CUser::SetStatusPrefix(const CString& s) {
 		return true;
 	}
 
+	return false;
+}
+
+bool CUser::SetLang(const CString& s) {
+	MCString::const_iterator itr;
+	for(itr = msLangs.begin(); itr != msLangs.end(); ++itr){
+		if ((*itr).second == s) {
+			m_sLang = (*itr).first;
+			return true;
+		}
+	}
 	return false;
 }
 // !Setters
@@ -1179,8 +1191,3 @@ bool CUser::AutoClearChanBuffer() const { return m_bAutoClearChanBuffer; }
 CString CUser::GetSkinName() const { return m_sSkinName; }
 const CString& CUser::GetUserPath() const { if (!CFile::Exists(m_sUserPath)) { CDir::MakeDir(m_sUserPath); } return m_sUserPath; }
 // !Getters
-MCString CUser::msLangs;
-void InitMap() {
-        CUser::msLangs["English"] = "en_US";
-        CUser::msLangs["Deutsch"] = "de_DE";
-}
