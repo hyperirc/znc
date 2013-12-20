@@ -822,7 +822,7 @@ public:
 				}
 			} else {
 				if (!spSession->IsAdmin() && !pUser->HasSpaceForNewNetwork()) {
-					WebSock.PrintErrorPage("Network number limit reached. Ask an admin to increase the limit for you, or delete few old ones from Your Settings");
+					WebSock.PrintErrorPage("Network number limit reached. Ask an admin to increase the limit for you, or delete unneeded networks from Your Settings.");
 					return true;
 				}
 
@@ -862,9 +862,10 @@ public:
 				WebSock.PrintErrorPage("Network name should be alphanumeric");
 				return true;
 			}
-			pNetwork = pUser->AddNetwork(sName);
+			CString sNetworkAddError;
+			pNetwork = pUser->AddNetwork(sName, sNetworkAddError);
 			if (!pNetwork) {
-				WebSock.PrintErrorPage("Network [" + sName.Token(0) + "] already exists");
+				WebSock.PrintErrorPage(sNetworkAddError);
 				return true;
 			}
 		}
@@ -1099,7 +1100,7 @@ public:
 					l["IRCNick"] = vNetworks[a]->GetIRCNick().GetNick();
 					CServer* pServer = vNetworks[a]->GetCurrentServer();
 					if (pServer) {
-						l["Server"] = pServer->GetName();
+						l["Server"] = pServer->GetName() + ":" + (pServer->IsSSL() ? "+" : "") + CString(pServer->GetPort());
 					}
 				}
 

@@ -317,6 +317,12 @@ bool CIRCNetwork::ParseConfig(CConfig *pConfig, CString& sError, bool bUpgrade) 
 						"loading [awaystore] instead");
 				sModName = "awaystore";
 			}
+		
+			// XXX Legacy crap, added in 1.1; fakeonline module was dropped in 1.0 and returned in 1.1
+			if (sModName == "fakeonline") {
+				CUtils::PrintMessage("NOTICE: [fakeonline] was renamed, loading [modules_online] instead");
+				sModName = "modules_online";
+			}
 
 			CUtils::PrintAction("Loading network module [" + sModName + "]");
 			CString sModRet;
@@ -624,7 +630,8 @@ const vector<CChan*>& CIRCNetwork::GetChans() const { return m_vChans; }
 
 CChan* CIRCNetwork::FindChan(CString sName) const {
 	if (GetIRCSock()) {
-		sName.TrimLeft(GetIRCSock()->GetPerms());
+		// See https://tools.ietf.org/html/draft-brocklesby-irc-isupport-03#section-3.16
+		sName.TrimLeft(GetIRCSock()->GetISupport("STATUSMSG", ""));
 	}
 
 	for (unsigned int a = 0; a < m_vChans.size(); a++) {

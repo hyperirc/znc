@@ -127,6 +127,38 @@ void CHTTPSock::ReadLine(const CString& sData) {
 		m_uPostLen = sLine.Token(1).ToULong();
 		if (m_uPostLen > MAX_POST_SIZE)
 			PrintErrorPage(413, "Request Entity Too Large", "The request you sent was too large.");
+	} else if (sName.Equals("X-Forwarded-For:")) {
+		// X-Forwarded-For: client, proxy1, proxy2
+		if (m_sForwardedIP.empty()) {
+			const VCString& vsTrustedProxies = CZNC::Get().GetTrustedProxies();
+			CString sIP = GetRemoteIP();
+
+			VCString vsIPs;
+			sLine.Token(1, true).Split(",", vsIPs, false, "", "", false, true);
+
+			while (!vsIPs.empty()) {
+				// sIP told us that it got connection from vsIPs.back()
+				// check if sIP is trusted proxy
+				bool bTrusted = false;
+				for (VCString::const_iterator it = vsTrustedProxies.begin(); it != vsTrustedProxies.end(); ++it) {
+					if (sIP.WildCmp(*it)) {
+						bTrusted = true;
+						break;
+					}
+				}
+				if (bTrusted) {
+					// sIP is trusted proxy, so use vsIPs.back() as new sIP
+					sIP = vsIPs.back();
+					vsIPs.pop_back();
+				} else {
+					break;
+				}
+			}
+
+			// either sIP is not trusted proxy, or it's in the beginning of the X-Forwarded-For list
+			// in both cases use it as the endpoind
+			m_sForwardedIP = sIP;
+		}
 	} else if (sName.Equals("If-None-Match:")) {
 		// this is for proper client cache support (HTTP 304) on static files:
 		m_sIfNoneMatch = sLine.Token(1, true);
@@ -147,6 +179,14 @@ void CHTTPSock::ReadLine(const CString& sData) {
 
 		DisableReadLine();
 	}
+}
+
+CString CHTTPSock::GetRemoteIP() {
+	if (!m_sForwardedIP.empty()) {
+		return m_sForwardedIP;
+	}
+
+	return CSocket::GetRemoteIP();
 }
 
 CString CHTTPSock::GetDate(time_t stamp) {
@@ -645,7 +685,7 @@ bool CHTTPSock::PrintHeader(off_t uContentLength, const CString& sContentType, u
 	MCString::iterator it;
 
 	for (it = m_msResponseCookies.begin(); it != m_msResponseCookies.end(); ++it) {
-		Write("Set-Cookie: " + it->first.Escape_n(CString::EURL) + "=" + it->second.Escape_n(CString::EURL) + "; path=/;\r\n");
+		Write("Set-Cookie: " + it->first.Escape_n(CString::EURL) + "=" + it->second.Escape_n(CString::EURL) + "; path=/;" + (GetSSL() ? "Secure;" : "") + "\r\n");
 	}
 
 	for (it = m_msHeaders.begin(); it != m_msHeaders.end(); ++it) {

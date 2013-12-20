@@ -484,6 +484,10 @@ bool CZNC::WriteConfig() {
 		config.AddKeyValuePair("BindHost", m_vsBindHosts[v].FirstLine());
 	}
 
+	for (unsigned int v = 0; v < m_vsTrustedProxies.size(); v++) {
+		config.AddKeyValuePair("TrustedProxy", m_vsTrustedProxies[v].FirstLine());
+	}
+
 	CModules& Mods = GetModules();
 
 	for (unsigned int a = 0; a < Mods.size(); a++) {
@@ -1110,6 +1114,7 @@ bool CZNC::DoRehash(CString& sError)
 	}
 
 	m_vsBindHosts.clear();
+	m_vsTrustedProxies.clear();
 	m_vsMotd.clear();
 
 	// Delete all listeners
@@ -1203,6 +1208,12 @@ bool CZNC::DoRehash(CString& sError)
 	for (vit = vsList.begin(); vit != vsList.end(); ++vit) {
 		AddBindHost(*vit);
 	}
+
+	config.FindStringVector("trustedproxy", vsList);
+	for (vit = vsList.begin(); vit != vsList.end(); ++vit) {
+		AddTrustedProxy(*vit);
+	}
+
 	config.FindStringVector("vhost", vsList);
 	for (vit = vsList.begin(); vit != vsList.end(); ++vit) {
 		AddBindHost(*vit);
@@ -1419,6 +1430,37 @@ bool CZNC::RemBindHost(const CString& sHost) {
 	for (it = m_vsBindHosts.begin(); it != m_vsBindHosts.end(); ++it) {
 		if (sHost.Equals(*it)) {
 			m_vsBindHosts.erase(it);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void CZNC::ClearTrustedProxies() {
+	m_vsTrustedProxies.clear();
+}
+
+bool CZNC::AddTrustedProxy(const CString& sHost) {
+	if (sHost.empty()) {
+		return false;
+	}
+
+	for (unsigned int a = 0; a < m_vsTrustedProxies.size(); a++) {
+		if (m_vsTrustedProxies[a].Equals(sHost)) {
+			return false;
+		}
+	}
+
+	m_vsTrustedProxies.push_back(sHost);
+	return true;
+}
+
+bool CZNC::RemTrustedProxy(const CString& sHost) {
+	VCString::iterator it;
+	for (it = m_vsTrustedProxies.begin(); it != m_vsTrustedProxies.end(); ++it) {
+		if (sHost.Equals(*it)) {
+			m_vsTrustedProxies.erase(it);
 			return true;
 		}
 	}

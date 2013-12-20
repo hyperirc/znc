@@ -7,7 +7,7 @@ AC_DEFUN([AC_PROG_CC], [m4_errprint(__file__:__line__[: Something is trying to u
 dnl Needed for AC_PATH_PROGS_FEATURE_CHECK which was added in 2.62
 AC_PREREQ([2.62])
 dnl Keep the version number in sync with main.h!
-AC_INIT([znc], [1.1])
+AC_INIT([znc], [1.3])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([src/znc.cpp])
 AC_LANG([C++])
@@ -152,6 +152,9 @@ AC_ARG_ENABLE( [poll],
 	AS_HELP_STRING([--disable-poll], [use select() instead of poll()]),
 	[POLL="$enableval"],
 	[POLL="yes"])
+AC_ARG_WITH( [gtest],
+	AS_HELP_STRING([--with-gtest=DIR], [Path to directory with src/gtest-all.cc and src/gtest_main.cc files.
+					If not specified, "make test" will download gtest tarball and use it.]))
 
 AC_ARG_WITH([systemdsystemunitdir],
 	AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
@@ -160,6 +163,9 @@ AC_ARG_WITH([systemdsystemunitdir],
 			with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)
 		fi
 	])
+if test "x$with_gtest" != xno; then
+	AC_SUBST([GTEST_DIR], [$with_gtest])
+fi
 if test "x$with_systemdsystemunitdir" != xno; then
 	AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
 fi
@@ -552,6 +558,9 @@ AC_CACHE_CHECK([for GNU make], [ac_cv_path_GNUMAKE], [
 ])
 GNUMAKE_DIRNAME=`AS_DIRNAME(["$ac_cv_path_GNUMAKE"])`
 GNUMAKE=`echo $ac_cv_path_GNUMAKE | $SED "s%$GNUMAKE_DIRNAME/%%"`
+
+# this is in the end, for not trying to include it when it doesn't exist yet
+appendCXX "-include znc/zncconfig.h"
 
 AC_SUBST([CXXFLAGS])
 AC_SUBST([CPPFLAGS])
